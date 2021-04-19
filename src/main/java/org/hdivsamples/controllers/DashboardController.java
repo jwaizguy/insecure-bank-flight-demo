@@ -149,9 +149,9 @@ public class DashboardController {
 		ois.close();
 
     // JC: This line has defect
-		//return "<p>File '" + file.getOriginalFilename() + "' uploaded successfully</p>";
+		return "<p>File '" + file.getOriginalFilename() + "' uploaded successfully</p>";
     // JC: This line does not
-		return "<p>File uploaded successfully</p>";
+		//return "<p>File uploaded successfully</p>";
 	}
 
 	@RequestMapping(value = "/userDetail/maliciouscertificate", method = RequestMethod.POST)
