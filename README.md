@@ -1,4 +1,4 @@
-# Insecure Bank
+# Insecure Bank - FLIGHT EU Demo
 ![Insecure-Bank](https://hdivsecurity.com/img/bank.png)
 ## Running the application locally
 
