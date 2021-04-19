@@ -204,7 +204,7 @@
       ],
       "tool": {
         "driver": {
-          "name": "Coverity",
+          "name": "Synopsys Workflow Engine Report",
           "organization": "Synopsys",
           "rules": [
             {
