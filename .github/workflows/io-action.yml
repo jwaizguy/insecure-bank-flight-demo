@@ -94,7 +94,7 @@ jobs:
     # Please note that the ID in previous step was set to prescription
     # in order for this logic to work
     - name: Software Composition Analysis with Black Duck
-      if: ${{steps.prescription.outputs.scaScan == 'true' }}
+      if: ${{steps.prescription.outputs.scaScan == 'true2' }}
       uses: blackducksoftware/github-action@v2
       with:
          args: '--blackduck.url="${{ env.BLACKDUCK_URL}}" --blackduck.api.token="${{ secrets.BLACKDUCK_TOKEN}}" --detect.tools="DETECTOR"'
