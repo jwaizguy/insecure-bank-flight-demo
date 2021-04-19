@@ -1,0 +1,245 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "results": [
+        {
+          "ruleId": "XSS/xss/_/java",
+          "message": {
+            "text": "XSS: Concatenating \"file.getOriginalFilename()\" to an HTML page allows cross-site scripting, because it was not properly sanitized for context HTML PCDATA block.\nRemediation Advice: Perform the following escaping in the following order to guard against cross-site scripting attacks with Java.\n\nFor example: \"Escape.html(file)\"\n\n\n* Use the \"Escape.html\" function from the Coverity Sanitizers Library. This escapes the output for HTML.\n\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/main/java/org/hdivsamples/controllers/DashboardController.java"
+                },
+                "region": {
+                  "startLine": 152
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "6c1cc1062bfb891e70f8923b9f9a33be"
+          },
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "src/main/java/org/hdivsamples/controllers/DashboardController.java"
+                          },
+                          "region": {
+                            "startLine": 152
+                          }
+                        },
+                        "message": {
+                          "text": "Remediation advice: Perform the following escaping in the following order to guard against cross-site scripting attacks with Java.\n\nFor example: \"Escape.html(file)\"\n\n\n* Use the \"Escape.html\" function from the Coverity Sanitizers Library. This escapes the output for HTML.\n\n"
+                        }
+                      }
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "src/main/java/org/hdivsamples/controllers/DashboardController.java"
+                          },
+                          "region": {
+                            "startLine": 152
+                          }
+                        },
+                        "message": {
+                          "text": "Event Set 1: Data flow from tainted source to string construction using insufficiently escaped tainted data and then to output. See details in steps 3 - 5. (Events #1 - #3)"
+                        }
+                      }
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "src/main/java/org/hdivsamples/controllers/DashboardController.java"
+                          },
+                          "region": {
+                            "startLine": 152
+                          }
+                        },
+                        "message": {
+                          "text": "Event #1: Reading data from an HTTP request, which is considered tainted."
+                        }
+                      }
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "src/main/java/org/hdivsamples/controllers/DashboardController.java"
+                          },
+                          "region": {
+                            "startLine": 152
+                          }
+                        },
+                        "message": {
+                          "text": "Event #2: Concatenating \"file.getOriginalFilename()\" to an HTML page allows cross-site scripting, because it was not properly sanitized for context HTML PCDATA block."
+                        }
+                      }
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "src/main/java/org/hdivsamples/controllers/DashboardController.java"
+                          },
+                          "region": {
+                            "startLine": 152
+                          }
+                        },
+                        "message": {
+                          "text": "Event #3: Printing to HTML output."
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "UNSAFE_DESERIALIZATION/unsafe_deserialization/_/java",
+          "message": {
+            "text": "UNSAFE_DESERIALIZATION: A tainted value \"file.getInputStream()\" is deserialized. This may allow an attacker to bypass security checks or execute arbitrary code.\nRemediation Advice: If possible, use pure data formats such as JSON or XML to serialize and deserialize untrusted data.  Otherwise, if you must use native serialization methods, check the integrity of the data (for example with HMAC) before deserializing it."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/main/java/org/hdivsamples/controllers/DashboardController.java"
+                },
+                "region": {
+                  "startLine": 147
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "e337de0a6b4ff311d30e0b6faf3bf8c7"
+          },
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "src/main/java/org/hdivsamples/controllers/DashboardController.java"
+                          },
+                          "region": {
+                            "startLine": 147
+                          }
+                        },
+                        "message": {
+                          "text": "Remediation advice: If possible, use pure data formats such as JSON or XML to serialize and deserialize untrusted data.  Otherwise, if you must use native serialization methods, check the integrity of the data (for example with HMAC) before deserializing it."
+                        }
+                      }
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "src/main/java/org/hdivsamples/controllers/DashboardController.java"
+                          },
+                          "region": {
+                            "startLine": 147
+                          }
+                        },
+                        "message": {
+                          "text": "Event Set 1: See details in steps 3 - 4. (Events #1 - #2)"
+                        }
+                      }
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "src/main/java/org/hdivsamples/controllers/DashboardController.java"
+                          },
+                          "region": {
+                            "startLine": 147
+                          }
+                        },
+                        "message": {
+                          "text": "Event #1: \"org.springframework.web.multipart.MultipartFile.getInputStream()\" returns data from an HTTP request."
+                        }
+                      }
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "src/main/java/org/hdivsamples/controllers/DashboardController.java"
+                          },
+                          "region": {
+                            "startLine": 147
+                          }
+                        },
+                        "message": {
+                          "text": "Event #2: A tainted value \"file.getInputStream()\" is deserialized. This may allow an attacker to bypass security checks or execute arbitrary code."
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "tool": {
+        "driver": {
+          "name": "Coverity",
+          "organization": "Synopsys",
+          "rules": [
+            {
+              "id": "XSS/xss/_/java",
+              "shortDescription": {
+                "text": "Cross-site scripting"
+              },
+              "fullDescription": {
+                "text": "Untrusted user-supplied data is inserted into a context that can execute JavaScript without adequate validation, escaping, or filtering: A user can execute arbitrary JavaScript on a web page viewed or accessed by another user, potentially allowing session hijacking, disclosing sensitive data in the DOM, or viewing of keyboard and mouse events."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": []
+              }
+            },
+            {
+              "id": "UNSAFE_DESERIALIZATION/unsafe_deserialization/_/java",
+              "shortDescription": {
+                "text": "Unsafe deserialization"
+              },
+              "fullDescription": {
+                "text": "A user-controllable string is deserialized: An attacker can instantiate arbitrary classes, possibly resulting in a denial of service or potentially unintended code execution."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": []
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
