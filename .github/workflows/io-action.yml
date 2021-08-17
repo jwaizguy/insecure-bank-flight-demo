@@ -45,99 +45,112 @@ jobs:
         path: /home/runner/.synopsys
         key: synopsys-cache-ubuntu
 
-    - name: Synopsys Intelligent Security Scan
-      id: prescription
-      uses: synopsys-sig/intelligent-security-scan@v1
-      with:
-         ioServerUrl: ${{env.IO_URL}}
-         ioServerToken: ${{secrets.IO_TOKEN}}
-         workflowServerUrl: ${{env.WORKFLOW_URL}}
-         additionalWorkflowArgs: --persona=developer --release.type=minor
-                --sast.rescan.threshold=0 --sca.rescan.threshold=0
-                --polaris.url=${{env.POLARIS_URL}} --polaris.token=${{secrets.POLARIS_TOKEN}}
-                --sensitive.package.pattern='.*(\\+\\+\\+.*(com\\/example\\/app)).*'
-         stage: "IO"
+    #- name: Synopsys Intelligent Security Scan
+    #  id: prescription
+    #  uses: synopsys-sig/intelligent-security-scan@v1
+    #  with:
+    #     ioServerUrl: ${{env.IO_URL}}
+    #     ioServerToken: ${{secrets.IO_TOKEN}}
+    #     workflowServerUrl: ${{env.WORKFLOW_URL}}
+    #     additionalWorkflowArgs: --persona=developer --release.type=minor
+    #            --sast.rescan.threshold=0 --sca.rescan.threshold=0
+    #            --polaris.url=${{env.POLARIS_URL}} --polaris.token=${{secrets.POLARIS_TOKEN}}
+    #            --sensitive.package.pattern='.*(\\+\\+\\+.*(com\\/example\\/app)).*'
+    #     stage: "IO"
          
     # Question: Should this always download, or download every time? Depends on whether it auto-updates or fails if there
     # is a more recent version.
-    - name: Download Polaris Software
-      if: steps.polaris-cache.outputs.cache-hit != 'true'
-      run: |
-          export POLARIS_URL=${{ env.POLARIS_URL}}
-          export POLARIS_ACCESS_TOKEN=${{ secrets.POLARIS_TOKEN}}
-          wget -q ${{ env.POLARIS_URL}}/api/tools/polaris_cli-linux64.zip
-          unzip -j polaris_cli-linux64.zip -d /tmp
+    #- name: Download Polaris Software
+    #  if: steps.polaris-cache.outputs.cache-hit != 'true'
+    #  run: |
+    #      export POLARIS_URL=${{ env.POLARIS_URL}}
+    #      export POLARIS_ACCESS_TOKEN=${{ secrets.POLARIS_TOKEN}}
+    #      wget -q ${{ env.POLARIS_URL}}/api/tools/polaris_cli-linux64.zip
+    #      unzip -j polaris_cli-linux64.zip -d /tmp
      
     # Please note that the ID in previous step was set to prescription
     # in order for this logic to work also make sure that POLARIS_TOKEN
     # is defined in settings
-    - name: Static Analysis with Polaris
-      if: ${{steps.prescription.outputs.sastScan == 'true' && github.event_name == 'push'}}
+    #- name: Static Analysis with Polaris
+    #  if: ${{steps.prescription.outputs.sastScan == 'true' && github.event_name == 'push'}}
+    #  run: |
+    #      export POLARIS_URL=${{ env.POLARIS_URL}}
+    #      export POLARIS_ACCESS_TOKEN=${{ secrets.POLARIS_TOKEN}}
+    #      /tmp/polaris analyze -w
+    
+    - name: Set up Java (CoPilot)
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+
+    - name: Build
       run: |
-          export POLARIS_URL=${{ env.POLARIS_URL}}
-          export POLARIS_ACCESS_TOKEN=${{ secrets.POLARIS_TOKEN}}
-          /tmp/polaris analyze -w
-          
-    - name: Static Analysis with Polaris - Incremental
-      if: ${{steps.prescription.outputs.sastScan == 'true' && github.event_name == 'pull_request'}}
-      run: |
-          URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.pull_request.number }}/files"
-          FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename')
-          echo $FILES | tr " " "\n" > polaris-files-to-scan.txt
-          echo "Files Changed -->"
-          cat polaris-files-to-scan.txt
-          export POLARIS_URL=${{ env.POLARIS_URL}}
-          export POLARIS_ACCESS_TOKEN=${{ secrets.POLARIS_TOKEN}}
-          export POLARIS_FF_ENABLE_COVERITY_INCREMENTAL=true
-          /tmp/polaris analyze -w --coverity-ignore-capture-failure --incremental polaris-files-to-scan.txt | tee polaris-output.txt
+        mvn compile
+
+    - name: Upload to CoPilot
+      if: github.event_name == 'push' || github.event_name == 'pull_request'
+      run: bash <(curl -s https://copilot.blackducksoftware.com/ci/githubactions/scripts/upload)
+
+    #- name: Static Analysis with Polaris - Incremental
+    #  if: ${{steps.prescription.outputs.sastScan == 'true' && github.event_name == 'pull_request'}}
+    #  run: |
+    #      URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.pull_request.number }}/files"
+    #      FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename')
+    #      echo $FILES | tr " " "\n" > polaris-files-to-scan.txt
+    #      echo "Files Changed -->"
+    #      cat polaris-files-to-scan.txt
+    #      export POLARIS_URL=${{ env.POLARIS_URL}}
+    #      export POLARIS_ACCESS_TOKEN=${{ secrets.POLARIS_TOKEN}}
+    #      export POLARIS_FF_ENABLE_COVERITY_INCREMENTAL=true
+    #      /tmp/polaris analyze -w --coverity-ignore-capture-failure --incremental polaris-files-to-scan.txt | tee polaris-output.txt
 
     # Please note that the ID in previous step was set to prescription
     # in order for this logic to work
-    - name: Software Composition Analysis with Black Duck
-      if: ${{steps.prescription.outputs.scaScan == 'true2' }}
-      uses: blackducksoftware/github-action@v2
-      with:
-         args: '--blackduck.url="${{ env.BLACKDUCK_URL}}" --blackduck.api.token="${{ secrets.BLACKDUCK_TOKEN}}" --detect.tools="DETECTOR"'
+    #- name: Software Composition Analysis with Black Duck
+    #  if: ${{steps.prescription.outputs.scaScan == 'true2' }}
+    #  uses: blackducksoftware/github-action@v2
+    #  with:
+    #     args: '--blackduck.url="${{ env.BLACKDUCK_URL}}" --blackduck.api.token="${{ secrets.BLACKDUCK_TOKEN}}" --detect.tools="DETECTOR"'
      
-    - name: Synopsys Intelligent Security Scan
-      if: ${{ steps.prescription.outputs.sastScan == 'true' || steps.prescription.outputs.scaScan == 'true' }}
-      uses: synopsys-sig/intelligent-security-scan@v1
-      with:
-        ioServerUrl: ${{env.IO_URL}}
-        ioServerToken: ${{secrets.IO_TOKEN}}
-        workflowServerUrl: ${{env.WORKFLOW_URL}}
-        additionalWorkflowArgs: "--slack.channel.id=C015LGE7RRQ --slack.token=${{secrets.SLACK_TOKEN}} --IS_SAST_ENABLED=${{steps.prescription.outputs.sastScan}} --IS_SCA_ENABLED=${{steps.prescription.outputs.scaScan}} --polaris.project.name=jc-insecure-bank-io --polaris.url=${{env.POLARIS_URL}} --polaris.token=${{secrets.POLARIS_TOKEN}} --blackduck.project.name=jc-insecure-bank:1.0.0 --blackduck.url=${{env.BLACKDUCK_URL}} --blackduck.api.token=${{secrets.BLACKDUCK_TOKEN}}"
-        stage: "WORKFLOW"
+    #- name: Synopsys Intelligent Security Scan
+    #  if: ${{ steps.prescription.outputs.sastScan == 'true' || steps.prescription.outputs.scaScan == 'true' }}
+    #  uses: synopsys-sig/intelligent-security-scan@v1
+    #  with:
+    #    ioServerUrl: ${{env.IO_URL}}
+    #    ioServerToken: ${{secrets.IO_TOKEN}}
+    #    workflowServerUrl: ${{env.WORKFLOW_URL}}
+    #    additionalWorkflowArgs: "--slack.channel.id=C015LGE7RRQ --slack.token=${{secrets.SLACK_TOKEN}} --IS_SAST_ENABLED=${{steps.prescription.outputs.sastScan}} --IS_SCA_ENABLED=${{steps.prescription.outputs.scaScan}} --polaris.project.name=jc-insecure-bank-io --polaris.url=${{env.POLARIS_URL}} --polaris.token=${{secrets.POLARIS_TOKEN}} --blackduck.project.name=jc-insecure-bank:1.0.0 --blackduck.url=${{env.BLACKDUCK_URL}} --blackduck.api.token=${{secrets.BLACKDUCK_TOKEN}}"
+    #    stage: "WORKFLOW"
         
-    - name: Cat SARIF File
-      run: cat workflowengine-results.sarif.json
+    #- name: Cat SARIF File
+    #  run: cat workflowengine-results.sarif.json
       
-    - name: Upload SARIF file
-      if: ${{steps.prescription.outputs.sastScan == 'true' && github.event_name == 'push'}}
-      uses: github/codeql-action/upload-sarif@v1
-      with:
-        # Path to SARIF file relative to the root of the repository
-        sarif_file: workflowengine-results.sarif.json
+    #- name: Upload SARIF file
+    #  if: ${{steps.prescription.outputs.sastScan == 'true' && github.event_name == 'push'}}
+    #  uses: github/codeql-action/upload-sarif@v1
+    #  with:
+    #    # Path to SARIF file relative to the root of the repository
+    #    sarif_file: workflowengine-results.sarif.json
         
-    - name: Generate SARIF (Incremental)
-      if: ${{steps.prescription.outputs.sastScan == 'true' && github.event_name == 'pull_request'}}
-      run: |
-          INPUT_FILE=`find . -name incremental-results.json -print`
-          if [ X$INPUT_FILE == "X" ]; then echo "ERROR: Unable to find incremental analysis results"; exit 1; fi
-          CWD=`pwd`
-          echo EXEC: node ./scripts/cov-format-sarif-for-github.js --inputFile "$INPUT_FILE" --repoName $GITHUB_REPOSITORY --checkoutPath $GITHUB_REPOSITORY $CWD $GITHUB_SHA --outputFile GitHubSARIF.json
-          node ./scripts/cov-format-sarif-for-github.js --inputFile "$INPUT_FILE" --repoName $GITHUB_REPOSITORY --checkoutPath $GITHUB_REPOSITORY $CWD $GITHUB_SHA --outputFile GitHubSARIF.json
-          echo "INFO: cat GitHubSARIF.json"
-          cat GitHubSARIF.json
-          echo "INFO: Done with GitHubSARIF.json"
+    #- name: Generate SARIF (Incremental)
+    #  if: ${{steps.prescription.outputs.sastScan == 'true' && github.event_name == 'pull_request'}}
+    #  run: |
+    #      INPUT_FILE=`find . -name incremental-results.json -print`
+    #      if [ X$INPUT_FILE == "X" ]; then echo "ERROR: Unable to find incremental analysis results"; exit 1; fi
+    #      CWD=`pwd`
+    #      echo EXEC: node ./scripts/cov-format-sarif-for-github.js --inputFile "$INPUT_FILE" --repoName $GITHUB_REPOSITORY --checkoutPath $GITHUB_REPOSITORY $CWD $GITHUB_SHA --outputFile GitHubSARIF.json
+    #      node ./scripts/cov-format-sarif-for-github.js --inputFile "$INPUT_FILE" --repoName $GITHUB_REPOSITORY --checkoutPath $GITHUB_REPOSITORY $CWD $GITHUB_SHA --outputFile GitHubSARIF.json
+    #      echo "INFO: cat GitHubSARIF.json"
+    #      cat GitHubSARIF.json
+    #      echo "INFO: Done with GitHubSARIF.json"
           
-    - name: Upload SARIF file (Incremental)
-      if: ${{steps.prescription.outputs.sastScan == 'true' && github.event_name == 'pull_request'}}
-      uses: github/codeql-action/upload-sarif@v1
-      with:
-        # Path to SARIF file relative to the root of the repository
-        #sarif_file: GitHubSARIF.json
-        sarif_file: github-sarif-for-demo.json
+    #- name: Upload SARIF file (Incremental)
+    #  if: ${{steps.prescription.outputs.sastScan == 'true' && github.event_name == 'pull_request'}}
+    #  uses: github/codeql-action/upload-sarif@v1
+    #  with:
+    #    # Path to SARIF file relative to the root of the repository
+    #    #sarif_file: GitHubSARIF.json
+    #    sarif_file: github-sarif-for-demo.json
         
 #    - name: Build Breaker
 #      run: |
